@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anime · Sanjay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="brand">Sanjay<span>.</span></a>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="movies.html">Movies</a></li>
+    <li><a href="anime.html">Anime</a></li>
+    <li><a href="connect.html">Connect</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="container">
+
+    <section class="hero" style="min-height: 45vh;">
+      <div class="eyebrow">The Anime</div>
+      <h1>Worlds I've lived in.</h1>
+      <p class="sub">30 anime · mean score 96.46 · still adding.</p>
+    </section>
+
+    <section class="reveal">
+      <div class="section-label">S-Tier</div>
+      <h2>The ones that changed me.</h2>
+      <div class="poster-grid" id="s-tier-grid"></div>
+    </section>
+
+    <section class="reveal">
+      <div class="section-label">Currently watching</div>
+      <div class="currently-grid">
+        <div class="currently-card">
+          <div class="label">Watching</div>
+          <div class="value">Naruto</div>
+          <div class="note">33 episodes in.</div>
+        </div>
+        <div class="currently-card">
+          <div class="label">Watching</div>
+          <div class="value">BLUE LOCK Season 2</div>
+          <div class="note">4 episodes in.</div>
+        </div>
+        <div class="currently-card">
+          <div class="label">Watching</div>
+          <div class="value">Assassination Classroom</div>
+          <div class="note">4 episodes in.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="section-label">Completed</div>
+      <h2>What I've finished.</h2>
+      <div class="poster-grid" id="completed-grid"></div>
+    </section>
+
+    <section class="reveal">
+      <div class="section-label">Plan to watch</div>
+      <h2>The endless list.</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.5rem;" id="ptw-container"></div>
+    </section>
+
+    <section class="reveal">
+      <div class="section-label">Manga</div>
+      <h2>What I'm reading.</h2>
+      <div id="manga-container"></div>
+    </section>
+
+  </div>
+</main>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="close">&times;</button>
+    <h3></h3>
+    <div class="modal-meta"></div>
+    <div class="stars"></div>
+    <div class="review"></div>
+  </div>
+</div>
+
+<footer>
+  <p>Sanjay · <a href="connect.html">Connect</a> · Built with stories in mind.</p>
+</footer>
+
+<script src="assets/anime-data.js"></script>
+<script src="assets/script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // S-Tier
+  const st = document.getElementById('s-tier-grid');
+  ANIME.sTier.anime.forEach(a => {
+    const score = a.r ? (a.r / 20).toFixed(1) : '';
+    st.innerHTML += `<div class="poster" data-modal='${JSON.stringify({ title: a.t, year: a.e + ' episodes', stars: a.r ? '★ ' + (a.r/20).toFixed(1) : '', note: a.note })}'>
+      <div class="plate">
+        <div class="title">${a.t}</div>
+        <div class="year">${a.e} eps</div>
+        ${score ? `<div class="rating">${score}</div>` : ''}
+      </div>
+    </div>`;
+  });
+
+  // Completed
+  const comp = document.getElementById('completed-grid');
+  ANIME.completed.forEach(a => {
+    const score = a.r ? (a.r / 20).toFixed(1) : '';
+    comp.innerHTML += `<div class="poster" data-modal='${JSON.stringify({ title: a.t, year: a.e + ' episodes', stars: a.r ? '★ ' + (a.r/20).toFixed(1) : '', note: '' })}'>
+      <div class="plate">
+        <div class="title">${a.t}</div>
+        <div class="year">${a.e} eps</div>
+        ${score ? `<div class="rating">${score}</div>` : ''}
+      </div>
+    </div>`;
+  });
+
+  // PTW
+  const ptw = document.getElementById('ptw-container');
+  ANIME.planToWatch.forEach(a => {
+    const span = document.createElement('span');
+    span.style.cssText = 'padding: 0.4rem 0.9rem; border: 1px solid var(--border); font-size: 0.8rem; color: var(--muted);';
+    span.textContent = a;
+    ptw.appendChild(span);
+  });
+
+  // Manga
+  const manga = document.getElementById('manga-container');
+  MANGA.forEach(m => {
+    manga.innerHTML += `<div class="poster" style="max-width: 180px;" data-modal='${JSON.stringify({ title: m.t, year: m.ch + ' chapters', stars: '★ ' + (m.r/20).toFixed(1), note: '' })}'>
+      <div class="plate">
+        <div class="title">${m.t}</div>
+        <div class="year">${m.ch} ch</div>
+        <div class="rating">${(m.r/20).toFixed(1)}</div>
+      </div>
+    </div>`;
+  });
+
+  // Reveal
+  document.querySelectorAll('.reveal').forEach(r => {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    obs.observe(r);
+  });
+});
+</script>
+</body>
+</html>
