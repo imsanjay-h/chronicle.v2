@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movies · Sanjay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="brand">Sanjay<span>.</span></a>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="movies.html">Movies</a></li>
+    <li><a href="anime.html">Anime</a></li>
+    <li><a href="connect.html">Connect</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="container">
+
+    <section class="hero" style="min-height: 45vh;">
+      <div class="eyebrow">The Screen</div>
+      <h1>Films that stayed.</h1>
+      <p class="sub">Not a ranking. Not a review. Just the films that became part of me.</p>
+    </section>
+
+    <section class="reveal">
+      <div class="section-label">The tiers</div>
+      <div id="tiers-container"></div>
+    </section>
+
+    <section class="reveal">
+      <div class="section-label">Recently watched</div>
+      <h2>What I've seen lately.</h2>
+      <div class="poster-grid" id="recent-grid"></div>
+    </section>
+
+    <section class="reveal">
+      <div class="section-label">Watchlist</div>
+      <h2>What's waiting.</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.5rem;">
+        <div id="watchlist-container" style="display: flex; flex-wrap: wrap; gap: 0.6rem;"></div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="close">&times;</button>
+    <h3></h3>
+    <div class="modal-meta"></div>
+    <div class="stars"></div>
+    <div class="review"></div>
+  </div>
+</div>
+
+<footer>
+  <p>Sanjay · <a href="connect.html">Connect</a> · Built with stories in mind.</p>
+</footer>
+
+<script src="assets/movies-data.js"></script>
+<script src="assets/script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const tiersEl = document.getElementById('tiers-container');
+  const tierKeys = ['immortals', 'worksOfArt', 'stayedWithMe', 'goodTime', 'didntConnect'];
+
+  tierKeys.forEach(key => {
+    const tier = MOVIES[key];
+    const div = document.createElement('div');
+    div.className = 'tier reveal';
+
+    let html = `<div class="tier-head">
+      <div class="tier-num">${tier.label.split('·')[0].trim()}</div>
+      <div>
+        <h3>${tier.label.split('·')[1].trim()}</h3>
+        <div class="tier-sub">${tier.sub}</div>
+      </div>
+    </div><div class="poster-grid">`;
+
+    tier.films.forEach(f => {
+      const starsStr = '★'.repeat(Math.floor(f.r)) + (f.r % 1 >= 0.5 ? '½' : '');
+      html += `<div class="poster" data-modal='${JSON.stringify({ title: f.t, year: f.y, director: f.d, stars: starsStr, note: f.note })}'>
+        <div class="plate">
+          <div class="title">${f.t}</div>
+          <div class="year">${f.y}</div>
+          <div class="rating">${starsStr}</div>
+        </div>
+        <div class="meta">${f.d || ''}</div>
+      </div>`;
+    });
+
+    html += '</div>';
+    div.innerHTML = html;
+    tiersEl.appendChild(div);
+  });
+
+  // Recently
+  const recentGrid = document.getElementById('recent-grid');
+  RECENTLY.forEach(f => {
+    const starsStr = '★'.repeat(Math.floor(f.r)) + (f.r % 1 >= 0.5 ? '½' : '');
+    recentGrid.innerHTML += `<div class="poster" data-modal='${JSON.stringify({ title: f.t, year: f.y, director: f.d, stars: starsStr, note: f.note })}'>
+      <div class="plate">
+        <div class="title">${f.t}</div>
+        <div class="year">${f.y}</div>
+        <div class="rating">${starsStr}</div>
+      </div>
+    </div>`;
+  });
+
+  // Watchlist
+  const wl = document.getElementById('watchlist-container');
+  WATCHLIST.forEach(f => {
+    const span = document.createElement('span');
+    span.style.cssText = 'padding: 0.4rem 0.9rem; border: 1px solid var(--border); font-size: 0.8rem; color: var(--muted);';
+    span.textContent = f;
+    wl.appendChild(span);
+  });
+
+  // Re-init reveal for dynamically added tiers
+  document.querySelectorAll('.reveal').forEach(r => {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    obs.observe(r);
+  });
+});
+</script>
+</body>
+</html>
